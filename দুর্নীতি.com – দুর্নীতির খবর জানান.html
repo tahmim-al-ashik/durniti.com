@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>দুর্নীতি.com – দুর্নীতির খবর জানান</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@600;700&family=Hind+Siliguri:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #E8EBE4;
+    --surface: #F5F6F1;
+    --ink: #14262B;
+    --muted: #526367;
+    --mark: #F4D93A;
+    --on-mark: #14262B;
+    --backdrop: rgba(20, 38, 43, .55);
+    --display: 'Anek Bangla', 'Hind Siliguri', 'Noto Sans Bengali', 'Kalpurush', sans-serif;
+    --body: 'Hind Siliguri', 'Noto Sans Bengali', 'Kalpurush', system-ui, sans-serif;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #101A1D;
+      --surface: #182428;
+      --ink: #E6EBE4;
+      --muted: #96A7A9;
+      --backdrop: rgba(0, 0, 0, .65);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #101A1D;
+    --surface: #182428;
+    --ink: #E6EBE4;
+    --muted: #96A7A9;
+    --backdrop: rgba(0, 0, 0, .65);
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  *, *::before, *::after { box-sizing: inherit; }
+  [hidden] { display: none !important; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 400 1.0625rem/1.7 var(--body);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-family: var(--display); font-weight: 700; line-height: 1.3; letter-spacing: 0; margin: 0; }
+  p { margin: 0; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+  [tabindex="-1"]:focus { outline: none; }
+  .wrap { max-width: 66rem; margin-inline: auto; padding-inline: clamp(1rem, 4vw, 2rem); }
+
+  /* Header */
+  .site-header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: var(--paper); border-bottom: 1.5px solid var(--ink); }
+  .bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1.5rem; padding-block: .7rem; }
+  .brand { font-family: var(--display); font-weight: 700; font-size: 1.6rem; line-height: 1.3; background: none; border: 0; padding: 0; cursor: pointer; }
+  .brand span { color: var(--muted); font-size: 1.1rem; }
+  .tabs { display: flex; gap: .25rem; }
+  .tab { background: none; border: 0; padding: .3rem .8rem; font-weight: 600; cursor: pointer; color: var(--muted); border-radius: 3px; }
+  .tab:hover { color: var(--ink); }
+  .tab[aria-current="page"] { background: var(--mark); color: var(--on-mark); }
+  @media (max-width: 34rem) {
+    .tabs { width: 100%; }
+    .tab { flex: 1; padding-inline: .25rem; font-size: .95rem; }
+  }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; padding: .6rem 1.35rem; border: 1.5px solid var(--ink); border-radius: 3px; background: var(--ink); color: var(--paper); font-weight: 600; cursor: pointer; transition: background .15s, color .15s; }
+  .btn:hover { background: var(--mark); color: var(--on-mark); }
+  .btn.ghost { background: transparent; color: var(--ink); }
+  .btn.ghost:hover { background: var(--ink); color: var(--paper); }
+  .link { background: none; border: 0; padding: 0; font-weight: 600; text-decoration: underline; text-underline-offset: .25em; text-decoration-thickness: 1.5px; cursor: pointer; }
+  .link:hover { background: var(--mark); color: var(--on-mark); text-decoration-color: transparent; }
+
+  /* Hero */
+  .hero { padding-block: clamp(3rem, 11vw, 6.5rem) clamp(2.5rem, 7vw, 4rem); }
+  .hero h1 { font-size: clamp(2.3rem, 8vw, 5rem); line-height: 1.35; max-width: 14em; }
+  .redact { font: inherit; border: 0; padding: 0 .12em; margin: 0 -.02em; border-radius: 0; background: var(--ink); color: var(--ink); cursor: pointer; transition: background .8s ease, color .8s ease; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+  .redact[aria-pressed="true"] { background: var(--mark); color: var(--on-mark); }
+  .lede { max-width: 36rem; margin-top: 1.75rem; font-size: 1.2rem; color: var(--muted); }
+  .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.75rem; margin-top: 2rem; }
+
+  /* Stats */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); margin: 0; border-block: 1.5px solid var(--ink); }
+  .stat { padding: 1.2rem 1rem 1.2rem 0; display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: .15rem; }
+  .stat + .stat { padding-left: clamp(.75rem, 3vw, 1.75rem); border-left: 1.5px solid var(--ink); }
+  .stat dd { margin: 0; font: 700 clamp(1.7rem, 5.5vw, 2.8rem)/1.3 var(--display); }
+  .stat dt { color: var(--muted); font-size: .95rem; line-height: 1.4; }
+
+  /* Reports */
+  .section-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem; padding-block: clamp(2.5rem, 7vw, 4rem) 1.25rem; }
+  .section-head h2 { font-size: clamp(1.8rem, 5vw, 2.6rem); }
+  .section-head p { color: var(--muted); margin-top: .25rem; }
+  .filter { display: flex; flex-direction: column; gap: .2rem; font-size: .95rem; font-weight: 600; }
+  .field { width: 100%; padding: .6rem .8rem; background: var(--surface); border: 1.5px solid var(--ink); border-radius: 3px; }
+  .field::placeholder { color: var(--muted); }
+  textarea.field { resize: vertical; min-height: 8rem; }
+  .report { display: grid; grid-template-columns: 9rem minmax(0, 1fr) auto; gap: .75rem 2rem; padding-block: 1.6rem; border-top: 1.5px solid var(--ink); }
+  .report:last-child { border-bottom: 1.5px solid var(--ink); }
+  .meta { color: var(--muted); font-size: .95rem; line-height: 1.5; }
+  .meta strong { display: block; color: var(--ink); font-weight: 600; }
+  .report h3 { font-size: 1.45rem; }
+  .report .desc { margin: .35rem 0 .7rem; max-width: 60ch; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .amounts { display: flex; flex-direction: column; gap: .5rem; text-align: right; }
+  .amount small { display: block; color: var(--muted); font-size: .88rem; line-height: 1.4; }
+  .amount b { font: 700 1.35rem/1.4 var(--display); }
+  .amount b.hl { background: var(--mark); color: var(--on-mark); padding: 0 .3em; }
+  .empty { padding: 2.5rem 0; border-block: 1.5px solid var(--ink); color: var(--muted); }
+  @media (max-width: 46rem) {
+    .report { grid-template-columns: 1fr; }
+    .amounts { flex-direction: row; flex-wrap: wrap; gap: .5rem 2rem; text-align: left; }
+  }
+
+  /* Views: form + vault */
+  .page-head { padding-block: clamp(2.5rem, 8vw, 4.5rem) 1.5rem; }
+  .page-head h2 { font-size: clamp(2.1rem, 7vw, 3.6rem); }
+  .page-head p { margin-top: .6rem; max-width: 38rem; color: var(--muted); }
+  form.stack { max-width: 40rem; display: grid; gap: 1.4rem; padding-bottom: 4rem; }
+  .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 1.4rem; }
+  label.lbl { display: block; font-weight: 600; font-size: 1rem; margin-bottom: .2rem; }
+  .hint { font-size: .9rem; color: var(--muted); margin-top: .3rem; }
+  input[type="file"].field { border-style: dashed; border-width: 2px; padding: .8rem; }
+  input[type="file"]::file-selector-button { margin-right: .9rem; padding: .35rem .9rem; border: 1.5px solid var(--ink); border-radius: 3px; background: var(--ink); color: var(--paper); font-weight: 600; cursor: pointer; }
+  .switch { display: flex; align-items: flex-start; gap: 1rem; padding: 1rem 1.1rem; border: 1.5px solid var(--ink); border-radius: 3px; background: var(--surface); cursor: pointer; }
+  .switch input { appearance: none; -webkit-appearance: none; flex: none; width: 2.9rem; height: 1.6rem; margin: .25rem 0 0; border: 1.5px solid var(--ink); border-radius: 99px; background: var(--paper); position: relative; cursor: pointer; transition: background .15s; }
+  .switch input::before { content: ""; position: absolute; top: 2px; left: 2px; width: 1.15rem; height: 1.15rem; border-radius: 50%; background: var(--ink); transition: transform .15s; }
+  .switch input:checked { background: var(--mark); }
+  .switch input:checked::before { transform: translateX(1.3rem); background: var(--on-mark); }
+  .switch b { display: block; }
+  .switch span { color: var(--muted); font-size: .92rem; line-height: 1.5; display: block; }
+
+  .vault-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem; }
+  .vault-list { padding-bottom: 4rem; }
+  .vrow { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem 1.5rem; padding-block: 1.2rem; border-top: 1.5px solid var(--ink); }
+  .vrow:last-child { border-bottom: 1.5px solid var(--ink); }
+  .vrow h3 { font-size: 1.3rem; display: inline; margin-right: .75rem; }
+  .vrow .sub { margin-top: .2rem; color: var(--muted); font-size: .95rem; }
+  .vrow .note { margin-top: .5rem; max-width: 56ch; font-size: .95rem; padding-left: .8rem; border-left: 3px solid var(--mark); }
+  .pill { display: inline-block; padding: 0 .7rem; border: 1.5px solid var(--ink); border-radius: 99px; font-size: .88rem; font-weight: 600; vertical-align: .1em; white-space: nowrap; }
+  .pill.processing { background: var(--mark); color: var(--on-mark); }
+  .pill.resolved { background: var(--ink); color: var(--paper); }
+
+  /* Dialogs */
+  dialog { width: min(38rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); padding: 0; border: 1.5px solid var(--ink); border-radius: 4px; background: var(--surface); color: var(--ink); }
+  dialog::backdrop { background: var(--backdrop); }
+  .dlg { padding: clamp(1.25rem, 4vw, 2rem); display: grid; gap: 1.1rem; }
+  .dlg h2 { font-size: clamp(1.5rem, 5vw, 2.1rem); }
+  .dlg .meta { margin-top: -.5rem; }
+  .dlg .amounts { flex-direction: row; flex-wrap: wrap; gap: .5rem 2.5rem; text-align: left; }
+  .dlg-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .75rem; }
+
+  footer { border-top: 1.5px solid var(--ink); padding-block: 1.5rem; color: var(--muted); font-size: .92rem; }
+
+  .toast { position: fixed; left: 50%; bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 1rem); max-width: calc(100vw - 2rem); padding: .6rem 1.25rem; background: var(--ink); color: var(--paper); border-radius: 3px; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 30; }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap bar">
+    <button class="brand" type="button" data-view="home" aria-label="দুর্নীতি ডটকম – প্রথম পাতা">দুর্নীতি<span>.com</span></button>
+    <nav class="tabs" aria-label="প্রধান মেনু">
+      <button class="tab" type="button" data-view="home" aria-current="page">রিপোর্ট</button>
+      <button class="tab" type="button" data-view="submit">রিপোর্ট দিন</button>
+      <button class="tab" type="button" data-view="vault">আমার ভল্ট</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- HOME -->
+  <section id="view-home">
+    <div class="wrap hero">
+      <h1 id="h-home" tabindex="-1">দুর্নীতি ততক্ষণই টিকে থাকে, যতক্ষণ তা <button type="button" class="redact" id="redact" aria-pressed="false" aria-label="লুকানো (ঢাকতে বা খুলতে চাপুন)">লুকানো</button> থাকে।</h1>
+      <p class="lede">নিজের পরিচয় না দিয়েই ঘুষ ও আত্মসাতের খবর জানান। রিপোর্টগুলো একটি প্রকাশ্য নথিতে জমা হয়: কে কী চেয়েছিল, আর জনগণের টাকা কোথায় গেছে।</p>
+      <div class="hero-actions">
+        <button class="btn" type="button" data-view="submit">রিপোর্ট দিন</button>
+        <button class="link" type="button" id="jump-reports">প্রকাশিত রিপোর্ট পড়ুন</button>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <dl class="stats" id="stats"></dl>
+    </div>
+
+    <div class="wrap" id="reports">
+      <div class="section-head">
+        <div>
+          <h2>প্রকাশিত রিপোর্ট</h2>
+          <p>বেনামে জমা দেওয়া। স্বতন্ত্রভাবে যাচাই করা হয়নি।</p>
+        </div>
+        <div class="filter">
+          <label for="filter">খাত</label>
+          <select id="filter" class="field"></select>
+        </div>
+      </div>
+      <div id="report-list"></div>
+    </div>
+    <div class="wrap" style="height:clamp(2.5rem,7vw,4rem)"></div>
+  </section>
+
+  <!-- SUBMIT -->
+  <section id="view-submit" hidden>
+    <div class="wrap">
+      <div class="page-head">
+        <h2 id="h-submit" tabindex="-1">রিপোর্ট দিন</h2>
+        <p>যতটা পারেন বিস্তারিত লিখুন। তারিখ, স্থান ও অঙ্ক থাকলে তদন্তকারীদের কাজ সহজ হয়।</p>
+      </div>
+      <form id="report-form" class="stack">
+        <div class="pair">
+          <div>
+            <label class="lbl" for="f-sector">খাত</label>
+            <select id="f-sector" name="sector" class="field" required></select>
+          </div>
+          <div>
+            <label class="lbl" for="f-loc">প্রতিষ্ঠান ও শহর</label>
+            <input id="f-loc" name="loc" class="field" type="text" required placeholder="যেমন: সিটি হাসপাতাল, ঢাকা">
+          </div>
+        </div>
+        <div class="pair">
+          <div>
+            <label class="lbl" for="f-bribe">দাবি করা ঘুষ ($)</label>
+            <input id="f-bribe" name="demanded" class="field" type="number" min="0" step="any" inputmode="decimal" placeholder="0">
+          </div>
+          <div>
+            <label class="lbl" for="f-emb">আত্মসাৎ করা অঙ্ক ($)</label>
+            <input id="f-emb" name="damage" class="field" type="number" min="0" step="any" inputmode="decimal" placeholder="0">
+          </div>
+          <div>
+            <label class="lbl" for="f-date">ঘটনার তারিখ</label>
+            <input id="f-date" name="date" class="field" type="date" required>
+          </div>
+        </div>
+        <div>
+          <label class="lbl" for="f-desc">কী ঘটেছিল</label>
+          <textarea id="f-desc" name="desc" class="field" required placeholder="ঘটনাটি এবং জড়িত ব্যক্তিদের বিবরণ দিন।"></textarea>
+        </div>
+        <div>
+          <label class="lbl" for="f-file">প্রমাণ</label>
+          <input id="f-file" class="field" type="file" accept=".pdf,.png,.jpg,.jpeg">
+          <p class="hint">PDF, PNG বা JPG, সর্বোচ্চ ৫০ এমবি।</p>
+        </div>
+        <label class="switch">
+          <input type="checkbox" role="switch" name="anon" checked>
+          <div><b>পরিচয় গোপন রাখুন</b><span>রিপোর্ট সংরক্ষণের আগে আপনার আইপি ঠিকানা ও অ্যাকাউন্টের তথ্য মুছে ফেলা হয়।</span></div>
+        </label>
+        <div><button class="btn" type="submit">রিপোর্ট জমা দিন</button></div>
+      </form>
+    </div>
+  </section>
+
+  <!-- VAULT -->
+  <section id="view-vault" hidden>
+    <div class="wrap">
+      <div class="page-head vault-head">
+        <div>
+          <h2 id="h-vault" tabindex="-1">আমার ভল্ট</h2>
+          <p>এজেন্ট এক্স হিসেবে লগইন করা আছে। আপনার জমা দেওয়া রিপোর্ট ও প্রতিটির বর্তমান অবস্থা।</p>
+        </div>
+        <button class="btn ghost" type="button" id="signout">লগআউট</button>
+      </div>
+      <div class="vault-list" id="vault-list"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">দুর্নীতি.com। রিপোর্টগুলো জনগণের লেখা এবং স্বতন্ত্রভাবে যাচাই করা হয়নি।</div>
+</footer>
+
+<!-- Report details -->
+<dialog id="details-dialog" aria-labelledby="d-title">
+  <div class="dlg">
+    <h2 id="d-title"></h2>
+    <p class="meta" id="d-meta"></p>
+    <div class="amounts" id="d-amounts"></div>
+    <p id="d-desc"></p>
+    <div class="dlg-actions"><button class="btn" type="button" data-close>বন্ধ করুন</button></div>
+  </div>
+</dialog>
+
+<!-- Status update -->
+<dialog id="status-dialog" aria-labelledby="s-title">
+  <form method="dialog" class="dlg" id="status-form">
+    <h2 id="s-title">অবস্থা হালনাগাদ করুন</h2>
+    <p class="meta" id="s-sub"></p>
+    <div>
+      <label class="lbl" for="s-select">অবস্থা</label>
+      <select id="s-select" class="field">
+        <option value="pending">যাচাইয়ের অপেক্ষায়</option>
+        <option value="processing">তদন্তাধীন</option>
+        <option value="resolved">নিষ্পত্তি হয়েছে</option>
+      </select>
+    </div>
+    <div>
+      <label class="lbl" for="s-notes">মামলার নোট</label>
+      <textarea id="s-notes" class="field" placeholder="কর্তৃপক্ষ কী ব্যবস্থা নিয়েছে তা লিখুন।"></textarea>
+    </div>
+    <div class="dlg-actions">
+      <button class="btn ghost" type="button" data-close>বাতিল</button>
+      <button class="btn" type="submit">অবস্থা সংরক্ষণ করুন</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  // ---------- Data (demo) ----------
+  const SECTORS = ['পূর্ত ও অবকাঠামো', 'স্বাস্থ্য', 'শিক্ষা', 'পুলিশ ও নিরাপত্তা', 'শুল্ক ও বন্দর'];
+  const STATUS = { pending: 'যাচাইয়ের অপেক্ষায়', processing: 'তদন্তাধীন', resolved: 'নিষ্পত্তি হয়েছে' };
+  const LOCALE = 'bn-BD';
+
+  const reports = [
+    { id: 1, loc: 'পরিবহন বিভাগ, নিউ ইয়র্ক', sector: 'পূর্ত ও অবকাঠামো', date: '2026-09-24', demanded: 50000, damage: 0,
+      desc: 'একজন কর্মকর্তা মহাসড়ক মেরামতের টেন্ডার অনুমোদনের জন্য ১৫% কমিশন দাবি করেছেন। রাজি না হওয়ায় আমাদের নির্মাণ প্রতিষ্ঠানকে ভবিষ্যৎ দরপত্র থেকে কালো তালিকাভুক্ত করার হুমকি দেওয়া হয়েছে।', status: 'pending', notes: '' },
+    { id: 2, loc: 'সিটি হাসপাতাল, ক্যালিফোর্নিয়া', sector: 'স্বাস্থ্য', date: '2026-09-18', demanded: 0, damage: 1200000,
+      desc: 'হাসপাতাল প্রশাসন চিকিৎসা সরঞ্জাম কেনার নামে ভুয়া কোম্পানির মাধ্যমে ফেডারেল ত্রাণ তহবিলের টাকা বিদেশি অ্যাকাউন্টে সরিয়ে নিচ্ছে।', status: 'resolved', notes: '' },
+    { id: 3, loc: 'পাবলিক স্কুল ডিস্ট্রিক্ট, টেক্সাস', sector: 'শিক্ষা', date: '2026-09-05', demanded: 5000, damage: 0,
+      desc: 'জেলা সুপারিনটেনডেন্ট পছন্দের স্কুলে বদলি ও পদোন্নতির বিনিময়ে শিক্ষকদের কাছ থেকে নগদ ঘুষ দাবি করছেন।', status: 'processing', notes: '' },
+    { id: 4, loc: 'শুল্ক কর্তৃপক্ষ, ফ্লোরিডা', sector: 'শুল্ক ও বন্দর', date: '2026-08-14', demanded: 12000, damage: 50000,
+      desc: 'বন্দর কর্তৃপক্ষের এক এজেন্ট একটি নির্দিষ্ট ‘পরামর্শক’ প্রতিষ্ঠানের মাধ্যমে নগদ টাকা না দেওয়া পর্যন্ত বাণিজ্যিক চালান আটকে রাখছেন।', status: 'processing', notes: '' }
+  ];
+
+  let filter = 'all';
+  let activeId = null;
+
+  // ---------- Helpers ----------
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const num = (n) => Number(n).toLocaleString(LOCALE);
+  const fmtDate = (iso) => new Date(iso + 'T00:00:00').toLocaleDateString(LOCALE, { day: 'numeric', month: 'long', year: 'numeric' });
+  const usd = (n) => '$' + num(n);
+  // Short amounts in the units Bengali readers use: হাজার, লাখ, কোটি
+  function compact(n) {
+    const f = (v) => Number(v.toFixed(1)).toLocaleString(LOCALE);
+    if (n >= 1e7) return '$' + f(n / 1e7) + ' কোটি';
+    if (n >= 1e5) return '$' + f(n / 1e5) + ' লাখ';
+    if (n >= 1e3) return '$' + f(n / 1e3) + ' হাজার';
+    return '$' + num(n);
+  }
+
+  function toast(msg) {
+    const t = $('#toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toast.timer);
+    toast.timer = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  function amountsHtml(r) {
+    const out = [];
+    if (r.demanded > 0) out.push(`<div class="amount"><small>দাবি করা ঘুষ</small><b>${usd(r.demanded)}</b></div>`);
+    if (r.damage > 0) out.push(`<div class="amount"><small>আত্মসাৎ</small><b class="hl">${usd(r.damage)}</b></div>`);
+    if (!out.length) out.push('<div class="amount"><small>কোনো অঙ্ক উল্লেখ নেই</small></div>');
+    return out.join('');
+  }
+
+  // ---------- Rendering ----------
+  function renderStats() {
+    const emb = reports.reduce((s, r) => s + r.damage, 0);
+    const resolved = reports.filter((r) => r.status === 'resolved').length;
+    $('#stats').innerHTML = `
+      <div class="stat"><dt>মোট রিপোর্ট</dt><dd>${num(reports.length)}</dd></div>
+      <div class="stat"><dt>আত্মসাতের অভিযোগ</dt><dd>${compact(emb)}</dd></div>
+      <div class="stat"><dt>নিষ্পত্তি হওয়া মামলা</dt><dd>${num(resolved)}</dd></div>`;
+  }
+
+  function renderReports() {
+    const list = reports.filter((r) => filter === 'all' || r.sector === filter);
+    const box = $('#report-list');
+    if (!list.length) {
+      box.innerHTML = `<div class="empty">এই খাতে এখনো কোনো রিপোর্ট নেই। <button class="link" type="button" data-view="submit">প্রথম রিপোর্টটি দিন</button>।</div>`;
+      return;
+    }
+    box.innerHTML = list.map((r) => `
+      <article class="report">
+        <div class="meta"><strong>${fmtDate(r.date)}</strong>${esc(r.sector)}</div>
+        <div>
+          <h3>${esc(r.loc)}</h3>
+          <p class="desc">${esc(r.desc)}</p>
+          <button class="link" type="button" data-details="${r.id}">পূর্ণ রিপোর্ট পড়ুন</button>
+        </div>
+        <div class="amounts">${amountsHtml(r)}</div>
+      </article>`).join('');
+  }
+
+  function renderVault() {
+    $('#vault-list').innerHTML = reports.map((r) => `
+      <article class="vrow">
+        <div>
+          <h3>${esc(r.loc)}</h3><span class="pill ${r.status}">${STATUS[r.status]}</span>
+          <p class="sub">জমা দেওয়া হয়েছে ${fmtDate(r.date)}${r.demanded > 0 ? ', দাবি করা ঘুষ ' + usd(r.demanded) : ''}</p>
+          ${r.notes ? `<p class="note">${esc(r.notes)}</p>` : ''}
+        </div>
+        <button class="btn ghost" type="button" data-status="${r.id}">অবস্থা হালনাগাদ করুন</button>
+      </article>`).join('');
+  }
+
+  function renderAll() { renderStats(); renderReports(); renderVault(); }
+
+  // ---------- Navigation ----------
+  function navigate(view) {
+    ['home', 'submit', 'vault'].forEach((v) => { $('#view-' + v).hidden = v !== view; });
+    document.querySelectorAll('.tab').forEach((b) => {
+      if (b.dataset.view === view) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+    window.scrollTo(0, 0);
+    const h = $('#h-' + view);
+    if (h) h.focus({ preventScroll: true });
+  }
+
+  // ---------- Events ----------
+  document.addEventListener('click', (e) => {
+    const go = e.target.closest('[data-view]');
+    if (go) return navigate(go.dataset.view);
+
+    const det = e.target.closest('[data-details]');
+    if (det) {
+      const r = reports.find((x) => x.id === Number(det.dataset.details));
+      if (!r) return;
+      $('#d-title').textContent = r.loc;
+      $('#d-meta').textContent = r.sector + ', ' + fmtDate(r.date);
+      $('#d-amounts').innerHTML = amountsHtml(r);
+      $('#d-desc').textContent = r.desc;
+      return $('#details-dialog').showModal();
+    }
+
+    const st = e.target.closest('[data-status]');
+    if (st) {
+      const r = reports.find((x) => x.id === Number(st.dataset.status));
+      if (!r) return;
+      activeId = r.id;
+      $('#s-sub').textContent = r.loc;
+      $('#s-select').value = r.status;
+      $('#s-notes').value = r.notes;
+      return $('#status-dialog').showModal();
+    }
+
+    if (e.target.closest('[data-close]')) return e.target.closest('dialog').close();
+    if (e.target.tagName === 'DIALOG') e.target.close(); // backdrop click
+  });
+
+  $('#jump-reports').addEventListener('click', () => $('#reports').scrollIntoView({ behavior: 'smooth' }));
+  $('#signout').addEventListener('click', () => { navigate('home'); toast('লগআউট হয়েছে।'); });
+
+  $('#filter').addEventListener('change', (e) => { filter = e.target.value; renderReports(); });
+
+  $('#status-form').addEventListener('submit', () => {
+    const r = reports.find((x) => x.id === activeId);
+    if (!r) return;
+    r.status = $('#s-select').value;
+    r.notes = $('#s-notes').value.trim();
+    renderAll();
+    toast('অবস্থা সংরক্ষিত হয়েছে।');
+  });
+
+  $('#f-file').addEventListener('change', (e) => {
+    const f = e.target.files[0];
+    e.target.setCustomValidity(f && f.size > 50 * 1024 * 1024 ? 'ফাইলটি ৫০ এমবির বেশি বড়।' : '');
+    if (!e.target.validity.valid) e.target.reportValidity();
+  });
+
+  $('#report-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    reports.unshift({
+      id: Date.now(),
+      loc: fd.get('loc').trim(),
+      sector: fd.get('sector'),
+      date: fd.get('date'),
+      demanded: Number(fd.get('demanded')) || 0,
+      damage: Number(fd.get('damage')) || 0,
+      desc: fd.get('desc').trim(),
+      status: 'pending',
+      notes: ''
+    });
+    e.target.reset();
+    renderAll();
+    navigate('vault');
+    toast('রিপোর্ট জমা হয়েছে।');
+  });
+
+  // ---------- Init ----------
+  (function init() {
+    $('#filter').innerHTML = '<option value="all">সব খাত</option>' + SECTORS.map((s) => `<option>${s}</option>`).join('');
+    $('#f-sector').innerHTML = '<option value="">খাত বেছে নিন</option>' + SECTORS.map((s) => `<option>${s}</option>`).join('');
+    $('#f-date').max = new Date().toISOString().slice(0, 10);
+    renderAll();
+
+    // The redaction bar lifts once on load. Press it to cover the word again.
+    const bar = $('#redact');
+    bar.addEventListener('click', () => bar.setAttribute('aria-pressed', bar.getAttribute('aria-pressed') === 'true' ? 'false' : 'true'));
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) bar.setAttribute('aria-pressed', 'true');
+    else setTimeout(() => bar.setAttribute('aria-pressed', 'true'), 1300);
+  })();
+</script>
+</body>
+</html>
